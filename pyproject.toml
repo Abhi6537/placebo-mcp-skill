@@ -28,7 +28,8 @@ dependencies = [
     "typer>=0.9.0",
     "rich>=13.0.0",
     "python-dotenv>=1.0.0",
-    "httpx>=0.25.0"
+    "httpx>=0.25.0",
+    "mcp>=2.0.0"
 ]
 
 [project.optional-dependencies]
@@ -45,6 +46,7 @@ dev = [
 
 [project.scripts]
 placebo = "placebo.cli.main:app"
+placebo-mcp = "placebo.mcp.server:main"
 
 [tool.setuptools.packages.find]
 include = ["placebo*"]

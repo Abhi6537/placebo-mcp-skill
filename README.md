@@ -103,8 +103,45 @@ placebo audit path/to/dataset.csv \
 
 ---
 
+## MCP Server (Model Context Protocol)
+
+Placebo can run as an official MCP server for AI data agents (CoCo, Claude Desktop, Cursor):
+
+### Running via Stdio
+```bash
+python -m placebo.mcp.server
+# Or via entrypoint:
+placebo-mcp
+```
+
+### CoCo / Client MCP Configuration
+```json
+{
+  "mcpServers": {
+    "placebo": {
+      "command": "python",
+      "args": ["-m", "placebo.mcp.server"],
+      "env": {
+        "SNOWFLAKE_ACCOUNT": "your-account",
+        "SNOWFLAKE_USER": "your-user",
+        "SNOWFLAKE_PASSWORD": "your-password",
+        "GEMINI_API_KEY": "your-key"
+      }
+    }
+  }
+}
+```
+
+### MCP Tools Provided:
+- `placebo_register_hypothesis`: Pre-registers hypotheses to track search-space burden and enforce multiplicity penalties (p-hacking prevention).
+- `placebo_audit_claim`: Runs the active falsification battery directly on Snowflake with pre-trend checks, placebo dates, and Gemma 4 explanations.
+- `placebo_get_evidence`: Fetches the immutable Evidence Package JSON by Audit ID.
+
+---
+
 ## Repository Structure
 
+- `placebo/mcp/` — Model Context Protocol (MCP) server implementation (`server.py`)
 - `placebo/models/` — Strict Pydantic v2 domain models and Evidence Package Schema v1.0
 - `placebo/protocols/` — Protocol boundaries (`StorageAdapter`, `FalsificationEngine`, `LLMExplainer`)
 - `placebo/statistics/` — Deterministic mathematical engines (Welch t-test, Benjamini-Hochberg)
