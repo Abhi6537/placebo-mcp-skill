@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Placebo — Statistical Audit & Falsification Console</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span class="brand-badge">PLACEBO</span>
+      <span class="brand-subtitle">Scientific Audit & Falsification Layer</span>
+    </div>
+    <div class="nav-controls">
+      <span class="status-indicator live" id="system-status">● Core Engine Active</span>
+      <button class="btn btn-secondary" id="btn-refresh">Refresh Ledger</button>
+    </div>
+  </header>
+
+  <main class="console-layout">
+    <!-- Left Column: Session Funnel & Hypothesis Ledger -->
+    <aside class="sidebar-panel">
+      <div class="panel-header">
+        <h2>Hypothesis Ledger</h2>
+        <span class="counter" id="hyp-count">0 Tracked</span>
+      </div>
+
+      <!-- Funnel Metrics -->
+      <div class="funnel-metrics">
+        <div class="metric-chip">
+          <span class="metric-label">EXPLORED</span>
+          <span class="metric-val" id="funnel-explored">0</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-label">RAW SIG</span>
+          <span class="metric-val" id="funnel-raw">0</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-label">CORRECTED</span>
+          <span class="metric-val" id="funnel-corrected">0</span>
+        </div>
+        <div class="metric-chip">
+          <span class="metric-label">SURVIVED</span>
+          <span class="metric-val status-green" id="funnel-survived">0</span>
+        </div>
+      </div>
+
+      <!-- Hypothesis List -->
+      <div class="hypothesis-list" id="hypothesis-list">
+        <div class="empty-state">Loading registered hypotheses...</div>
+      </div>
+    </aside>
+
+    <!-- Right Column: Forensic Evidence & Audit View -->
+    <section class="evidence-panel">
+      <!-- Active Audit Header -->
+      <div class="evidence-header">
+        <div class="audit-meta">
+          <span class="badge badge-mono" id="audit-id-badge">SELECT HYPOTHESIS</span>
+          <h1 id="claim-title">No Audit Selected</h1>
+          <p class="claim-details" id="claim-details">Select a hypothesis from the ledger to inspect its falsification evidence package.</p>
+        </div>
+        <div class="verdict-banner" id="verdict-banner">
+          <div class="verdict-badge" id="verdict-badge">PENDING</div>
+          <div class="confidence-label" id="confidence-label">Awaiting evaluation</div>
+        </div>
+      </div>
+
+      <!-- Tabbed Evidence Content -->
+      <div class="audit-grid">
+        <!-- Card 1: Statistical Significance & Multiplicity -->
+        <div class="evidence-card">
+          <div class="card-title">
+            <h3>1. Multiplicity Correction</h3>
+            <span class="card-status" id="stat-status">EVALUATION</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat-box">
+              <span class="label">Raw p-value</span>
+              <span class="value mono" id="raw-p">--</span>
+            </div>
+            <div class="stat-box">
+              <span class="label">Adjusted p-value (BH)</span>
+              <span class="value mono" id="adj-p">--</span>
+            </div>
+            <div class="stat-box">
+              <span class="label">Estimated Effect</span>
+              <span class="value mono" id="effect-size">--</span>
+            </div>
+            <div class="stat-box">
+              <span class="label">95% Confidence Interval</span>
+              <span class="value mono" id="ci-range">--</span>
+            </div>
+          </div>
+          <div class="method-callout" id="stat-notes">
+            Multiple testing corrected using Benjamini-Hochberg FDR against session search burden.
+          </div>
+        </div>
+
+        <!-- Card 2: Placebo Dates Test -->
+        <div class="evidence-card">
+          <div class="card-title">
+            <h3>2. In-Time Placebo Dates Battery</h3>
+            <span class="card-status" id="placebo-status">PENDING</span>
+          </div>
+          <p class="card-desc">Tests whether comparable effects appear at arbitrary historical dates prior to intervention.</p>
+          <div class="falsification-table-wrap">
+            <table class="audit-table" id="placebo-table">
+              <thead>
+                <tr>
+                  <th>Pseudo-Date</th>
+                  <th>Observed Shift</th>
+                  <th>Relative to Real Effect</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="placebo-table-body">
+                <tr><td colspan="4" class="empty-cell">No test data</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card 3: Pre-Trend Invariance -->
+        <div class="evidence-card">
+          <div class="card-title">
+            <h3>3. Pre-Trend Drift Check</h3>
+            <span class="card-status" id="pretrend-status">PENDING</span>
+          </div>
+          <p class="card-desc">Verifies that the metric was flat and did not exhibit an ongoing slope before the event.</p>
+          <div class="diagnostic-box" id="pretrend-details">
+            <span class="mono">Slope: -- | p-value: -- | Observations: --</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Leave-One-Out Sensitivity -->
+        <div class="evidence-card">
+          <div class="card-title">
+            <h3>4. Cluster & Outlier Leverage</h3>
+            <span class="card-status" id="loo-status">PENDING</span>
+          </div>
+          <p class="card-desc">Jackknife sensitivity: checks if dropping any single entity collapses the finding.</p>
+          <div class="diagnostic-box" id="loo-details">
+            <span class="mono">Max drop: -- | Influential clusters: None</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gemma Grounded Explanation -->
+      <div class="explanation-card">
+        <div class="card-title">
+          <h3>Gemma Grounded Audit Narrative</h3>
+          <span class="badge badge-llm" id="llm-provider-badge">GEMMA 3 27B</span>
+        </div>
+        <div class="narrative-body" id="narrative-body">
+          <p class="lead-headline" id="narrative-headline">Awaiting evaluation...</p>
+          <div class="narrative-sections">
+            <div class="section-item">
+              <strong>What was observed:</strong>
+              <p id="narrative-observed">--</p>
+            </div>
+            <div class="section-item">
+              <strong>Falsification summary:</strong>
+              <p id="narrative-falsification">--</p>
+            </div>
+            <div class="section-item">
+              <strong>Action recommendation:</strong>
+              <p id="narrative-rec">--</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+{
+  "$defs": {
+    "ConfidenceLevel": {
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ],
+      "title": "ConfidenceLevel",
+      "type": "string"
+    },
+    "FalsificationResult": {
+      "properties": {
+        "test_type": {
+          "$ref": "#/$defs/FalsificationTestType"
+        },
+        "status": {
+          "$ref": "#/$defs/TestStatus"
+        },
+        "details": {
+          "title": "Details",
+          "type": "string"
+        },
+        "metrics": {
+          "additionalProperties": true,
+          "title": "Metrics",
+          "type": "object"
+        },
+        "placebo_dates_detail": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlaceboDatesDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pretrend_detail": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PreTrendDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "leave_one_out_detail": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaveOneOutDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "test_type",
+        "status",
+        "details"
+      ],
+      "title": "FalsificationResult",
+      "type": "object"
+    },
+    "FalsificationTestType": {
+      "enum": [
+        "placebo_dates",
+        "pretrend",
+        "leave_one_out",
+        "placebo_cohort"
+      ],
+      "title": "FalsificationTestType",
+      "type": "string"
+    },
+    "GroundedExplanation": {
+      "properties": {
+        "provider": {
+          "description": "LLM provider name, e.g. gemini-2.5-flash or ollama",
+          "title": "Provider",
+          "type": "string"
+        },
+        "headline": {
+          "description": "Executive 1-sentence finding",
+          "title": "Headline",
+          "type": "string"
+        },
+        "what_was_tested": {
+          "title": "What Was Tested",
+          "type": "string"
+        },
+        "what_was_observed": {
+          "title": "What Was Observed",
+          "type": "string"
+        },
+        "falsification_checks_summary": {
+          "title": "Falsification Checks Summary",
+          "type": "string"
+        },
+        "verdict_explanation": {
+          "title": "Verdict Explanation",
+          "type": "string"
+        },
+        "recommended_action": {
+          "title": "Recommended Action",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "guardrail_passed": {
+          "default": true,
+          "title": "Guardrail Passed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "provider",
+        "headline",
+        "what_was_tested",
+        "what_was_observed",
+        "falsification_checks_summary",
+        "verdict_explanation",
+        "recommended_action"
+      ],
+      "title": "GroundedExplanation",
+      "type": "object"
+    },
+    "Hypothesis": {
+      "properties": {
+        "hypothesis_id": {
+          "description": "Unique identifier e.g. HYP-0001",
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Data exploration session ID",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "claim_description": {
+          "description": "Natural language claim made by agent",
+          "title": "Claim Description",
+          "type": "string"
+        },
+        "metric": {
+          "$ref": "#/$defs/MetricDefinition"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/SegmentFilter"
+          },
+          "title": "Segments",
+          "type": "array"
+        },
+        "time_window": {
+          "$ref": "#/$defs/TimeWindow"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/HypothesisStatus",
+          "default": "REGISTERED"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "session_id",
+        "claim_description",
+        "metric",
+        "time_window"
+      ],
+      "title": "Hypothesis",
+      "type": "object"
+    },
+    "HypothesisStatus": {
+      "enum": [
+        "REGISTERED",
+        "EVALUATING",
+        "CONFIRMED",
+        "INCONCLUSIVE",
+        "REFUTED"
+      ],
+      "title": "HypothesisStatus",
+      "type": "string"
+    },
+    "LeaveOneOutDetail": {
+      "properties": {
+        "baseline_effect": {
+          "title": "Baseline Effect",
+          "type": "number"
+        },
+        "min_effect": {
+          "title": "Min Effect",
+          "type": "number"
+        },
+        "max_effect": {
+          "title": "Max Effect",
+          "type": "number"
+        },
+        "max_percentage_drop": {
+          "title": "Max Percentage Drop",
+          "type": "number"
+        },
+        "is_fragile": {
+          "description": "True if dropping a single entity/cluster collapses the effect",
+          "title": "Is Fragile",
+          "type": "boolean"
+        },
+        "influential_entities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Influential Entities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseline_effect",
+        "min_effect",
+        "max_effect",
+        "max_percentage_drop",
+        "is_fragile"
+      ],
+      "title": "LeaveOneOutDetail",
+      "type": "object"
+    },
+    "MetricDefinition": {
+      "properties": {
+        "name": {
+          "description": "Business metric name, e.g. conversion_rate, revenue",
+          "title": "Name",
+          "type": "string"
+        },
+        "column": {
+          "description": "Underlying database column name",
+          "title": "Column",
+          "type": "string"
+        },
+        "aggregation": {
+          "default": "mean",
+          "description": "Aggregation function: mean, sum, count, ratio",
+          "title": "Aggregation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "column"
+      ],
+      "title": "MetricDefinition",
+      "type": "object"
+    },
+    "PlaceboDatesDetail": {
+      "properties": {
+        "fake_dates": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fake Dates",
+          "type": "array"
+        },
+        "placebo_effects": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Placebo Effects",
+          "type": "array"
+        },
+        "real_effect": {
+          "title": "Real Effect",
+          "type": "number"
+        },
+        "dates_failed": {
+          "default": 0,
+          "description": "Count of fake dates showing statistically significant effect",
+          "title": "Dates Failed",
+          "type": "integer"
+        },
+        "total_dates_tested": {
+          "default": 0,
+          "title": "Total Dates Tested",
+          "type": "integer"
+        },
+        "failure_ratio": {
+          "default": 0.0,
+          "description": "Ratio of failed placebo dates",
+          "title": "Failure Ratio",
+          "type": "number"
+        }
+      },
+      "required": [
+        "real_effect"
+      ],
+      "title": "PlaceboDatesDetail",
+      "type": "object"
+    },
+    "PreTrendDetail": {
+      "properties": {
+        "pre_period_slope": {
+          "description": "Estimated slope in pre-intervention period",
+          "title": "Pre Period Slope",
+          "type": "number"
+        },
+        "pre_period_p_value": {
+          "description": "p-value testing H0: slope == 0",
+          "title": "Pre Period P Value",
+          "type": "number"
+        },
+        "has_pre_trend": {
+          "description": "True if pre-trend is statistically significant (falsification fails)",
+          "title": "Has Pre Trend",
+          "type": "boolean"
+        },
+        "observations_in_pre_period": {
+          "minimum": 0,
+          "title": "Observations In Pre Period",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pre_period_slope",
+        "pre_period_p_value",
+        "has_pre_trend",
+        "observations_in_pre_period"
+      ],
+      "title": "PreTrendDetail",
+      "type": "object"
+    },
+    "RuleEvaluation": {
+      "properties": {
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "rule_name": {
+          "title": "Rule Name",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "observed_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Value"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        }
+      },
+      "required": [
+        "rule_id",
+        "rule_name",
+        "passed",
+        "description"
+      ],
+      "title": "RuleEvaluation",
+      "type": "object"
+    },
+    "SearchContext": {
+      "properties": {
+        "session_id": {
+          "description": "Agent session ID",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "total_hypotheses_tested": {
+          "default": 1,
+          "description": "Total hypotheses explored in this session",
+          "minimum": 1,
+          "title": "Total Hypotheses Tested",
+          "type": "integer"
+        },
+        "initially_significant": {
+          "default": 0,
+          "description": "Hypotheses with raw p < 0.05",
+          "minimum": 0,
+          "title": "Initially Significant",
+          "type": "integer"
+        },
+        "survived_correction": {
+          "default": 0,
+          "description": "Hypotheses surviving multiplicity adjustment",
+          "minimum": 0,
+          "title": "Survived Correction",
+          "type": "integer"
+        },
+        "dimensions_explored": {
+          "description": "List of dimensions sliced",
+          "items": {
+            "type": "string"
+          },
+          "title": "Dimensions Explored",
+          "type": "array"
+        }
+      },
+      "required": [
+        "session_id"
+      ],
+      "title": "SearchContext",
+      "type": "object"
+    },
+    "SegmentFilter": {
+      "properties": {
+        "dimension": {
+          "description": "Dimension column name, e.g. country, platform",
+          "title": "Dimension",
+          "type": "string"
+        },
+        "operator": {
+          "default": "=",
+          "description": "Comparison operator: =, !=, IN, >, <",
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "description": "Filter value, e.g. FR, iOS",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimension",
+        "value"
+      ],
+      "title": "SegmentFilter",
+      "type": "object"
+    },
+    "StatisticalResult": {
+      "properties": {
+        "effect_size": {
+          "description": "Estimated treatment effect (difference in means)",
+          "title": "Effect Size",
+          "type": "number"
+        },
+        "percentage_change": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Relative percentage change (%)",
+          "title": "Percentage Change"
+        },
+        "standard_error": {
+          "description": "Standard error of the effect estimate",
+          "minimum": 0.0,
+          "title": "Standard Error",
+          "type": "number"
+        },
+        "raw_p_value": {
+          "description": "Unadjusted p-value",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Raw P Value",
+          "type": "number"
+        },
+        "adjustment_method": {
+          "default": "benjamini_hochberg",
+          "description": "Multiple testing correction applied",
+          "title": "Adjustment Method",
+          "type": "string"
+        },
+        "adjusted_p_value": {
+          "description": "Adjusted p-value after multiplicity correction",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Adjusted P Value",
+          "type": "number"
+        },
+        "confidence_interval": {
+          "description": "[lower_95, upper_95] CI",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Confidence Interval",
+          "type": "array"
+        },
+        "sample_size": {
+          "description": "Total sample observations",
+          "minimum": 1,
+          "title": "Sample Size",
+          "type": "integer"
+        },
+        "treatment_sample_size": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Treatment Sample Size"
+        },
+        "control_sample_size": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Control Sample Size"
+        },
+        "test_used": {
+          "default": "welch_t_test",
+          "description": "Statistical test executed",
+          "title": "Test Used",
+          "type": "string"
+        },
+        "degrees_of_freedom": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Degrees Of Freedom"
+        },
+        "assumptions_met": {
+          "default": true,
+          "description": "Whether statistical test assumptions were satisfied",
+          "title": "Assumptions Met",
+          "type": "boolean"
+        },
+        "assumption_notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assumption Notes"
+        }
+      },
+      "required": [
+        "effect_size",
+        "standard_error",
+        "raw_p_value",
+        "adjusted_p_value",
+        "confidence_interval",
+        "sample_size"
+      ],
+      "title": "StatisticalResult",
+      "type": "object"
+    },
+    "TestStatus": {
+      "enum": [
+        "PASSED",
+        "FAILED",
+        "INCONCLUSIVE",
+        "NOT_APPLICABLE"
+      ],
+      "title": "TestStatus",
+      "type": "string"
+    },
+    "TimeWindow": {
+      "properties": {
+        "start": {
+          "description": "Start date (YYYY-MM-DD)",
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "description": "End date (YYYY-MM-DD)",
+          "title": "End",
+          "type": "string"
+        },
+        "intervention_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Actual intervention/event date (YYYY-MM-DD)",
+          "title": "Intervention Date"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "TimeWindow",
+      "type": "object"
+    },
+    "VerdictDecision": {
+      "properties": {
+        "grade": {
+          "$ref": "#/$defs/VerdictGrade"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "primary_failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Primary Failure Reason"
+        },
+        "rules_evaluated": {
+          "items": {
+            "$ref": "#/$defs/RuleEvaluation"
+          },
+          "title": "Rules Evaluated",
+          "type": "array"
+        },
+        "recommendation": {
+          "title": "Recommendation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "grade",
+        "confidence",
+        "summary",
+        "recommendation"
+      ],
+      "title": "VerdictDecision",
+      "type": "object"
+    },
+    "VerdictGrade": {
+      "enum": [
+        "CONFIRMED",
+        "INCONCLUSIVE",
+        "REFUTED"
+      ],
+      "title": "VerdictGrade",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "description": "Strict evidence schema version",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "audit_id": {
+      "description": "Unique audit package ID, e.g. AUDIT-20261007-001",
+      "title": "Audit Id",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "hypothesis": {
+      "$ref": "#/$defs/Hypothesis"
+    },
+    "search_context": {
+      "$ref": "#/$defs/SearchContext"
+    },
+    "statistical_result": {
+      "$ref": "#/$defs/StatisticalResult"
+    },
+    "falsification_results": {
+      "items": {
+        "$ref": "#/$defs/FalsificationResult"
+      },
+      "title": "Falsification Results",
+      "type": "array"
+    },
+    "verdict": {
+      "$ref": "#/$defs/VerdictDecision"
+    },
+    "query_lineage": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Query Lineage"
+    },
+    "explanation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GroundedExplanation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "audit_id",
+    "hypothesis",
+    "search_context",
+    "statistical_result",
+    "verdict"
+  ],
+  "title": "EvidencePackage",
+  "type": "object"
+}
